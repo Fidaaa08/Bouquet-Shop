@@ -9,7 +9,7 @@
 ## 2. Buat akun admin
 
 1. Di Supabase, buka **Authentication → Users → Add user**.
-2. Buat akun menggunakan email dan kata sandi yang hanya dipakai admin.
+2. Buat akun menggunakan email admin dan kata sandi yang kuat serta hanya dipakai admin. Jangan gunakan kata sandi yang dibagikan ke publik.
 3. Salin UUID akun tersebut.
 4. Di **SQL Editor**, jalankan query berikut setelah mengganti UUID:
 
@@ -18,7 +18,7 @@
    values ('GANTI-DENGAN-UUID-AKUN-ADMIN');
    ```
 
-Admin masuk melalui `/admin.html`. Pendaftaran admin tidak dibuka dari situs.
+Admin masuk melalui `/admin.html`. Pendaftaran admin tidak dibuka dari situs; akun harus dibuat di Supabase dan UUID-nya didaftarkan di `admin_users`. Ini mencegah pengunjung toko membuat akun admin sendiri.
 
 ## 3. Jalankan lokal dengan API Vercel
 
@@ -65,5 +65,6 @@ Jika belum memiliki domain sendiri, situs tetap dapat diakses melalui domain baw
 2. Isi nama, kategori, harga, deskripsi, foto, dan status produk.
 3. Produk aktif otomatis tampil di halaman depan. Foto diunggah ke bucket `product-images`.
 4. Pesanan yang dikirim dari keranjang tersimpan di Supabase dan dapat dilihat dari panel admin.
+5. Ringkasan dashboard menampilkan jumlah pesanan, pesanan yang menunggu konfirmasi, dan produk aktif. Gunakan pencarian/filter untuk menemukan produk atau pesanan, ubah status pesanan dari daftar, dan tekan tombol muat ulang untuk mengambil data terbaru.
 
 Nomor `WHATSAPP_NUMBER` dipakai untuk tautan tindak lanjut setelah pesanan tersimpan. Pembayaran online belum termasuk.

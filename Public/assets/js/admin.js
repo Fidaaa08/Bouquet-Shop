@@ -11,6 +11,12 @@ const loginMessage = document.querySelector("#login-message");
 const logoutButton = document.querySelector("#logout-button");
 const cancelEdit = document.querySelector("#cancel-edit");
 const formTitle = document.querySelector("#product-form-title");
+const productEditor = document.querySelector("#product-editor");
+const productSearch = document.querySelector("#product-search");
+const productFilter = document.querySelector("#product-filter");
+const orderSearch = document.querySelector("#order-search");
+const orderFilter = document.querySelector("#order-filter");
+const refreshButton = document.querySelector("#refresh-button");
 
 const categories = {
   romantis: "Romantis",
@@ -29,6 +35,7 @@ const rupiah = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0,
 });
 let products = [];
+let orders = [];
 let supabase;
 
 function showMessage(text, isError = false) {
@@ -45,6 +52,16 @@ function showLogin() {
   showMessage("");
 }
 
+function updateOverview() {
+  const pending = orders.filter((order) => order.status === "pending").length;
+  document.querySelector("#stat-orders").textContent = String(orders.length);
+  document.querySelector("#stat-pending").textContent = String(pending);
+  document.querySelector("#stat-products").textContent = String(
+    products.filter((product) => product.active).length,
+  );
+  document.querySelector("#pending-count").textContent = String(pending);
+}
+
 async function showDashboard(user) {
   const { data: admin, error } = await supabase
     .from("admin_users")
@@ -54,16 +71,17 @@ async function showDashboard(user) {
 
   if (error) throw error;
   if (!admin) {
-    await supabase.auth.signOut();
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) throw signOutError;
     showLogin();
     showMessage("Akun ini belum diberi akses admin.", true);
     return;
   }
 
+  await Promise.all([loadProducts(), loadOrders()]);
   loginSection.hidden = true;
   dashboard.hidden = false;
   showMessage("");
-  await Promise.all([loadProducts(), loadOrders()]);
 }
 
 function addEmptyMessage(container, text) {
@@ -75,12 +93,28 @@ function addEmptyMessage(container, text) {
 
 function renderProducts() {
   productList.replaceChildren();
-  if (!products.length) {
-    addEmptyMessage(productList, "Belum ada produk.");
+  const query = productSearch.value.trim().toLocaleLowerCase("id");
+  const filter = productFilter.value;
+  const visibleProducts = products.filter((product) => {
+    const matchesSearch = `${product.name} ${categories[product.category] || product.category}`
+      .toLocaleLowerCase("id")
+      .includes(query);
+    const matchesFilter = filter === "all" || (filter === "active" ? product.active : !product.active);
+    return matchesSearch && matchesFilter;
+  });
+
+  document.querySelector("#product-list-caption").textContent =
+    `${visibleProducts.length} dari ${products.length} produk`;
+
+  if (!visibleProducts.length) {
+    addEmptyMessage(
+      productList,
+      products.length ? "Produk tidak ditemukan untuk pencarian atau filter ini." : "Belum ada produk. Tambahkan produk pertama untuk mulai mengisi etalase.",
+    );
     return;
   }
 
-  products.forEach((product) => {
+  visibleProducts.forEach((product) => {
     const row = document.createElement("article");
     row.className = "admin-product";
     const details = document.createElement("div");
@@ -88,12 +122,22 @@ function renderProducts() {
     const image = document.createElement("img");
     image.src = product.image_url;
     image.alt = "";
+    image.loading = "lazy";
+    image.addEventListener("error", () => {
+      image.classList.add("image-unavailable");
+      image.removeAttribute("src");
+    }, { once: true });
+
     const text = document.createElement("div");
+    text.className = "product-copy";
     const name = document.createElement("strong");
     name.textContent = product.name;
     const summary = document.createElement("span");
-    summary.textContent = `${categories[product.category] || product.category} · ${rupiah.format(product.price)} · ${product.active ? "Aktif" : "Disembunyikan"}`;
-    text.append(name, summary);
+    summary.textContent = `${categories[product.category] || product.category} · ${rupiah.format(product.price)}`;
+    const visibility = document.createElement("span");
+    visibility.className = `product-visibility ${product.active ? "is-active" : "is-hidden"}`;
+    visibility.textContent = product.active ? "Tampil di toko" : "Disembunyikan";
+    text.append(name, summary, visibility);
     details.append(image, text);
 
     const actions = document.createElement("div");
@@ -122,29 +166,57 @@ async function loadProducts() {
   if (error) throw error;
   products = data || [];
   renderProducts();
+  updateOverview();
 }
 
-function renderOrders(orders) {
+function renderOrders() {
   orderList.replaceChildren();
-  if (!orders.length) {
-    addEmptyMessage(orderList, "Belum ada pesanan masuk.");
+  const query = orderSearch.value.trim().toLocaleLowerCase("id");
+  const filter = orderFilter.value;
+  const visibleOrders = orders.filter((order) => {
+    const matchesSearch = [
+      order.id,
+      order.customer_name,
+      order.customer_phone,
+      order.customer_email || "",
+    ].some((value) => value.toLocaleLowerCase("id").includes(query));
+    return matchesSearch && (filter === "all" || order.status === filter);
+  });
+
+  if (!visibleOrders.length) {
+    addEmptyMessage(
+      orderList,
+      orders.length ? "Pesanan tidak ditemukan untuk pencarian atau filter ini." : "Belum ada pesanan masuk.",
+    );
     return;
   }
 
-  orders.forEach((order) => {
+  visibleOrders.forEach((order) => {
     const row = document.createElement("article");
     row.className = "admin-order";
     const main = document.createElement("div");
     main.className = "admin-order-main";
+    const topLine = document.createElement("div");
+    topLine.className = "order-topline";
     const reference = document.createElement("strong");
-    reference.textContent = `Pesanan ${order.id.slice(0, 8)}`;
+    reference.textContent = `Pesanan #${order.id.slice(0, 8).toUpperCase()}`;
+    const date = document.createElement("time");
+    date.dateTime = order.created_at;
+    date.textContent = new Date(order.created_at).toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+    topLine.append(reference, date);
+
     const customer = document.createElement("p");
+    customer.className = "order-customer";
     customer.textContent = `${order.customer_name} · ${order.customer_phone}${order.customer_email ? ` · ${order.customer_email}` : ""}`;
     const address = document.createElement("p");
     address.textContent = `Alamat: ${order.delivery_address}`;
     const total = document.createElement("p");
-    total.textContent = `${rupiah.format(order.total_amount)} · ${new Date(order.created_at).toLocaleString("id-ID")}`;
-    main.append(reference, customer, address, total);
+    total.className = "order-total";
+    total.textContent = `Total ${rupiah.format(order.total_amount)}`;
+    main.append(topLine, customer, address, total);
 
     const items = document.createElement("ul");
     items.className = "admin-order-items";
@@ -157,11 +229,13 @@ function renderOrders(orders) {
 
     if (order.notes) {
       const notes = document.createElement("p");
+      notes.className = "order-notes";
       notes.textContent = `Catatan: ${order.notes}`;
       main.append(notes);
     }
 
     const status = document.createElement("select");
+    status.className = `order-status status-${order.status}`;
     status.setAttribute("aria-label", `Status pesanan ${order.id.slice(0, 8)}`);
     Object.entries(statuses).forEach(([value, label]) => {
       const option = document.createElement("option");
@@ -182,7 +256,9 @@ async function loadOrders() {
     .select("id, customer_name, customer_phone, customer_email, delivery_address, notes, total_amount, status, created_at, order_items(name_snapshot, unit_price, quantity)")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  renderOrders(data || []);
+  orders = data || [];
+  renderOrders();
+  updateOverview();
 }
 
 function resetProductForm() {
@@ -191,7 +267,7 @@ function resetProductForm() {
   productForm.elements.active.checked = true;
   productForm.elements.image.required = true;
   cancelEdit.hidden = true;
-  formTitle.textContent = "Tambah produk";
+  formTitle.textContent = "Tambah produk baru";
 }
 
 loginForm.addEventListener("submit", async (event) => {
@@ -216,16 +292,49 @@ loginForm.addEventListener("submit", async (event) => {
 });
 
 logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     showLogin();
   } catch (error) {
     showMessage(`Tidak dapat keluar: ${error.message}`, true);
+  } finally {
+    logoutButton.disabled = false;
   }
 });
 
 cancelEdit.addEventListener("click", resetProductForm);
+document.querySelector("#add-product-button").addEventListener("click", () => {
+  resetProductForm();
+  productEditor.scrollIntoView({ behavior: "smooth", block: "center" });
+  productForm.elements.name.focus({ preventScroll: true });
+});
+productSearch.addEventListener("input", renderProducts);
+productFilter.addEventListener("change", renderProducts);
+orderSearch.addEventListener("input", renderOrders);
+orderFilter.addEventListener("change", renderOrders);
+
+document.querySelectorAll(".admin-nav a").forEach((link) => {
+  link.addEventListener("click", () => {
+    document.querySelectorAll(".admin-nav a").forEach((item) => {
+      item.classList.toggle("is-current", item === link);
+    });
+  });
+});
+
+refreshButton.addEventListener("click", async () => {
+  refreshButton.disabled = true;
+  showMessage("Memperbarui data...");
+  try {
+    await Promise.all([loadProducts(), loadOrders()]);
+    showMessage("Data dashboard berhasil diperbarui.");
+  } catch (error) {
+    showMessage(`Data gagal diperbarui: ${error.message}`, true);
+  } finally {
+    refreshButton.disabled = false;
+  }
+});
 
 productList.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
@@ -243,7 +352,8 @@ productList.addEventListener("click", async (event) => {
     productForm.elements.image.required = false;
     cancelEdit.hidden = false;
     formTitle.textContent = `Edit: ${product.name}`;
-    productForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    productEditor.scrollIntoView({ behavior: "smooth", block: "center" });
+    productForm.elements.name.focus({ preventScroll: true });
     return;
   }
 
@@ -337,6 +447,7 @@ productForm.addEventListener("submit", async (event) => {
 orderList.addEventListener("change", async (event) => {
   const select = event.target.closest("[data-order-id]");
   if (!select) return;
+  const previousStatus = orders.find((order) => order.id === select.dataset.orderId)?.status;
   select.disabled = true;
   try {
     const { error } = await supabase
@@ -344,13 +455,16 @@ orderList.addEventListener("change", async (event) => {
       .update({ status: select.value })
       .eq("id", select.dataset.orderId);
     if (error) throw error;
+    const order = orders.find((item) => item.id === select.dataset.orderId);
+    if (order) order.status = select.value;
+    renderOrders();
+    updateOverview();
     showMessage("Status pesanan diperbarui.");
   } catch (error) {
+    select.value = previousStatus;
     showMessage(`Status pesanan tidak dapat diubah: ${error.message}`, true);
     select.disabled = false;
-    return;
   }
-  select.disabled = false;
 });
 
 async function initialize() {
@@ -364,7 +478,4 @@ async function initialize() {
 initialize().catch((error) => {
   showLogin();
   showMessage(`Panel admin tidak dapat dimuat: ${error.message}`, true);
-  loginForm.querySelectorAll("input, button").forEach((control) => {
-    control.disabled = true;
-  });
 });
