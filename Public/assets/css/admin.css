@@ -1,0 +1,53 @@
+.admin-page { min-height: 100vh; }
+.admin-header { min-height: 76px; padding: 12px 5.2%; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.admin-header .brand { width: 170px; }
+.admin-main { width: min(1050px, 90%); margin: 0 auto; padding: 72px 0 100px; }
+.admin-login { width: min(430px, 100%); margin: 5vh auto 0; padding: 36px; border: 1px solid var(--line); background: rgba(255,255,255,.38); }
+.admin-login h1, .admin-title-row h1 { margin-bottom: 12px; font-size: clamp(38px, 5vw, 56px); }
+.admin-intro { margin-bottom: 26px; color: var(--muted); line-height: 1.7; }
+.login-message { min-height: 18px; color: var(--wine); font-size: 11px; }
+.admin-dashboard[hidden], .admin-login[hidden] { display: none; }
+.admin-title-row, .admin-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.admin-title-row { margin-bottom: 38px; }
+.admin-title-row .eyebrow { margin-bottom: 13px; }
+.admin-section { margin-top: 30px; padding: 28px; border: 1px solid var(--line); background: rgba(255,255,255,.38); }
+.admin-section h2 { margin: 0 0 20px; font-size: 27px; }
+.admin-section-heading h2 { margin-bottom: 20px; }
+.admin-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-form label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; }
+.admin-form input:not([type="checkbox"]), .admin-form select, .admin-form textarea { width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0; background: var(--paper); color: var(--ink); }
+.admin-form input[type="file"] { padding: 8px; }
+.admin-form textarea { resize: vertical; }
+.admin-form .form-wide { grid-column: 1 / -1; }
+.admin-form .active-toggle { display: flex; align-items: center; gap: 9px; }
+.admin-form .button { width: fit-content; border: 0; cursor: pointer; }
+.admin-secondary-button { min-height: 38px; padding: 0 14px; border: 1px solid #c9c4bb; background: transparent; color: var(--ink); cursor: pointer; }
+.admin-message { min-height: 18px; margin: -20px 0 20px; color: var(--wine); font-size: 12px; }
+.admin-product-list, .admin-order-list { display: grid; gap: 12px; }
+.admin-product, .admin-order { padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); }
+.admin-product-details { min-width: 0; display: flex; align-items: center; gap: 14px; }
+.admin-product-details img { width: 68px; height: 78px; object-fit: cover; background: var(--paper-deep); }
+.admin-product-details strong, .admin-order strong { display: block; margin-bottom: 5px; font-family: var(--serif); font-size: 17px; font-weight: 400; }
+.admin-product-details span, .admin-order p, .admin-order-items { color: var(--muted); font-size: 10px; line-height: 1.7; }
+.admin-actions { display: flex; flex: 0 0 auto; gap: 8px; }
+.admin-actions button { min-height: 34px; padding: 0 10px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-size: 10px; }
+.admin-actions button:hover, .admin-secondary-button:hover { border-color: var(--wine); color: var(--wine); }
+.admin-order { align-items: flex-start; }
+.admin-order-main { min-width: 0; }
+.admin-order p { margin: 4px 0; }
+.admin-order-items { margin: 9px 0 0; padding-left: 17px; }
+.admin-order select { min-height: 36px; padding: 0 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.admin-empty { padding: 12px 0; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 620px) {
+  .admin-header { min-height: 66px; padding-right: 6%; padding-left: 6%; }
+  .admin-header .brand { width: 145px; }
+  .admin-main { width: 88%; padding: 46px 0 70px; }
+  .admin-login { margin-top: 2vh; padding: 26px 20px; }
+  .admin-section { padding: 20px 15px; }
+  .admin-form { grid-template-columns: 1fr; }
+  .admin-form .form-wide { grid-column: auto; }
+  .admin-product, .admin-order { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .admin-actions { width: 100%; }
+  .admin-actions button { flex: 1; }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Bouquet-shop",
+  "version": "1.0.0",
+  "description": "Toko Bucket Fida",
+  "main": "index.html",
+  "scripts": {
+  "start": "serve Public/assets -l 3000",
+  "dev": "serve Public/assets -l 3000"
+},
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
