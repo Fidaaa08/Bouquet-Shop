@@ -39,6 +39,10 @@ create table if not exists public.orders (
   customer_phone text not null check (char_length(btrim(customer_phone)) between 6 and 30),
   customer_email text check (customer_email is null or char_length(customer_email) <= 254),
   delivery_address text not null check (char_length(btrim(delivery_address)) between 5 and 500),
+  fulfillment_method text not null default 'delivery'
+    check (fulfillment_method in ('delivery', 'pickup')),
+  payment_method text
+    check (payment_method is null or payment_method in ('qris', 'cash')),
   notes text not null default '' check (char_length(notes) <= 1000),
   total_amount bigint not null check (total_amount > 0),
   status text not null default 'pending'
@@ -249,6 +253,59 @@ $$;
 
 revoke all on function public.place_order(text, text, text, text, text, jsonb) from public;
 grant execute on function public.place_order(text, text, text, text, text, jsonb) to anon, authenticated;
+
+create or replace function public.place_order_with_options(
+  p_customer_name text,
+  p_customer_phone text,
+  p_customer_email text,
+  p_delivery_address text,
+  p_notes text,
+  p_items jsonb,
+  p_fulfillment_method text,
+  p_payment_method text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  new_order_id uuid;
+begin
+  if p_fulfillment_method is null
+    or p_fulfillment_method not in ('delivery', 'pickup') then
+    raise exception using errcode = '22023', message = 'Metode penerimaan pesanan tidak valid.';
+  end if;
+
+  if p_payment_method is null
+    or p_payment_method not in ('qris', 'cash') then
+    raise exception using errcode = '22023', message = 'Metode pembayaran tidak valid.';
+  end if;
+
+  if p_payment_method = 'cash' and p_fulfillment_method <> 'pickup' then
+    raise exception using errcode = '22023', message = 'Pembayaran tunai hanya tersedia untuk ambil sendiri.';
+  end if;
+
+  select public.place_order(
+    p_customer_name,
+    p_customer_phone,
+    p_customer_email,
+    p_delivery_address,
+    p_notes,
+    p_items
+  ) into new_order_id;
+
+  update public.orders
+  set fulfillment_method = p_fulfillment_method,
+      payment_method = p_payment_method
+  where id = new_order_id;
+
+  return new_order_id;
+end;
+$$;
+
+revoke all on function public.place_order_with_options(text, text, text, text, text, jsonb, text, text) from public;
+grant execute on function public.place_order_with_options(text, text, text, text, text, jsonb, text, text) to anon, authenticated;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (

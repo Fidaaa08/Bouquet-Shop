@@ -35,6 +35,10 @@ const statuses = {
   completed: "Selesai",
   cancelled: "Dibatalkan",
 };
+const paymentMethods = {
+  qris: "QRIS",
+  cash: "Tunai saat ambil",
+};
 const rupiah = new Intl.NumberFormat("id-ID", {
   style: "currency",
   currency: "IDR",
@@ -238,11 +242,18 @@ function renderOrders() {
     customer.className = "order-customer";
     customer.textContent = `${order.customer_name} · ${order.customer_phone}${order.customer_email ? ` · ${order.customer_email}` : ""}`;
     const address = document.createElement("p");
-    address.textContent = `Alamat: ${order.delivery_address}`;
+    const isPickup = order.fulfillment_method === "pickup";
+    address.textContent = `${isPickup ? "Alamat pengambilan" : "Alamat pengiriman"}: ${order.delivery_address}`;
+    const fulfillment = document.createElement("p");
+    fulfillment.className = "order-fulfillment";
+    fulfillment.textContent = `Penerimaan: ${isPickup ? "Ambil sendiri" : "Pengiriman"}`;
+    const payment = document.createElement("p");
+    payment.className = "order-payment";
+    payment.textContent = `Pembayaran: ${paymentMethods[order.payment_method] || "Belum dicatat"}`;
     const total = document.createElement("p");
     total.className = "order-total";
     total.textContent = `Total ${rupiah.format(order.total_amount)}`;
-    main.append(topLine, customer, address, total);
+    main.append(topLine, customer, fulfillment, payment, address, total);
 
     const items = document.createElement("ul");
     items.className = "admin-order-items";
@@ -279,7 +290,7 @@ function renderOrders() {
 async function loadOrders() {
   const { data, error } = await supabase
     .from("orders")
-    .select("id, customer_name, customer_phone, customer_email, delivery_address, notes, total_amount, status, created_at, order_items(name_snapshot, unit_price, quantity)")
+    .select("id, customer_name, customer_phone, customer_email, delivery_address, fulfillment_method, payment_method, notes, total_amount, status, created_at, order_items(name_snapshot, unit_price, quantity)")
     .order("created_at", { ascending: false });
   if (error) throw error;
   orders = data || [];

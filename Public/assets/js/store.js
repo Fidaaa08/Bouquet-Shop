@@ -13,7 +13,16 @@ const checkoutForm = document.querySelector("#checkout-form");
 const checkoutMessage = document.querySelector("#checkout-message");
 const checkoutSubmit = checkoutForm.querySelector('button[type="submit"]');
 const whatsappFollowup = document.querySelector("#whatsapp-followup");
+const pickupLocation = document.querySelector("#pickup-location");
+const pickupConfirmation = document.querySelector("#pickup-confirmation");
+const qrisPanel = document.querySelector("#qris-panel");
+const qrisTotal = document.querySelector("#qris-total");
+const deliveryAddressField = checkoutForm.querySelector(".delivery-address-field");
+const deliveryAddress = checkoutForm.elements.deliveryAddress;
+const cashPaymentOption = document.querySelector("#cash-payment-option");
+const cashPaymentInput = checkoutForm.querySelector('input[name="paymentMethod"][value="cash"]');
 const toast = document.querySelector(".toast");
+const pickupAddress = "Jl. Melati, Desa Tembok Banjaran, RT 19/03, Kecamatan Adiwerna, Kabupaten Tegal, 52194";
 
 const categoryLabels = {
   satin: "Satin",
@@ -228,6 +237,20 @@ function renderCart() {
   saveCart();
 }
 
+function updateCheckoutMethods() {
+  const isPickup = checkoutForm.elements.fulfillmentMethod.value === "pickup";
+  pickupLocation.hidden = !isPickup;
+  deliveryAddressField.hidden = isPickup;
+  deliveryAddress.required = !isPickup;
+  deliveryAddress.disabled = isPickup;
+  cashPaymentInput.disabled = !isPickup;
+  cashPaymentOption.classList.toggle("is-disabled", !isPickup);
+
+  if (!isPickup && checkoutForm.elements.paymentMethod.value === "cash") {
+    checkoutForm.elements.paymentMethod.value = "qris";
+  }
+}
+
 async function loadProducts() {
   setCatalogMessage("Memuat rangkaian bunga...");
   const { data, error } = await supabase
@@ -286,14 +309,20 @@ cartItems.addEventListener("click", (event) => {
 });
 
 cartToggle.addEventListener("click", () => {
+  checkoutForm.hidden = false;
   checkoutMessage.textContent = "";
   whatsappFollowup.hidden = true;
+  pickupConfirmation.hidden = true;
+  qrisPanel.hidden = true;
+  updateCheckoutMethods();
   cartDialog.showModal();
 });
 cartClose.addEventListener("click", () => cartDialog.close());
 cartDialog.addEventListener("click", (event) => {
   if (event.target === cartDialog) cartDialog.close();
 });
+checkoutForm.addEventListener("change", updateCheckoutMethods);
+updateCheckoutMethods();
 
 checkoutForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -304,13 +333,21 @@ checkoutForm.addEventListener("submit", async (event) => {
 
   try {
     const formData = new FormData(checkoutForm);
-    const { data, error } = await supabase.rpc("place_order", {
+    const fulfillmentMethod = formData.get("fulfillmentMethod");
+    const paymentMethod = formData.get("paymentMethod");
+    const orderTotal = cartTotal.textContent;
+    const isPickup = fulfillmentMethod === "pickup";
+    const paymentLabel = paymentMethod === "cash" ? "Tunai saat ambil" : "QRIS";
+    const fulfillmentLabel = isPickup ? "Ambil sendiri" : "Pengiriman";
+    const { data, error } = await supabase.rpc("place_order_with_options", {
       p_customer_name: formData.get("customerName"),
       p_customer_phone: formData.get("customerPhone"),
       p_customer_email: formData.get("customerEmail") || null,
-      p_delivery_address: formData.get("deliveryAddress"),
+      p_delivery_address: isPickup ? pickupAddress : formData.get("deliveryAddress"),
       p_notes: formData.get("notes") || "",
       p_items: [...cart].map(([product_id, quantity]) => ({ product_id, quantity })),
+      p_fulfillment_method: fulfillmentMethod,
+      p_payment_method: paymentMethod,
     });
 
     if (error) throw error;
@@ -318,12 +355,18 @@ checkoutForm.addEventListener("submit", async (event) => {
     cart.clear();
     saveCart();
     checkoutForm.reset();
+    updateCheckoutMethods();
+    checkoutForm.hidden = true;
     renderCart();
-    checkoutMessage.textContent = `Pesanan berhasil disimpan. Nomor pesanan: ${data}`;
+    checkoutMessage.textContent = `Pesanan berhasil disimpan. Nomor pesanan: ${data}. Pembayaran: ${paymentLabel}.`;
+    pickupConfirmation.hidden = !isPickup;
+    qrisPanel.hidden = paymentMethod !== "qris";
+    qrisTotal.textContent = orderTotal;
 
     const whatsappNumber = getWhatsAppNumber();
     if (whatsappNumber) {
-      whatsappFollowup.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Halo, saya sudah membuat pesanan ${data} di Our Bouquets.`)}`;
+      const pickupDetails = isPickup ? ` Alamat pengambilan: ${pickupAddress}.` : "";
+      whatsappFollowup.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Halo, saya sudah membuat pesanan ${data} di Our Bouquets. Metode: ${fulfillmentLabel}, pembayaran ${paymentLabel}.${pickupDetails}`)}`;
       whatsappFollowup.hidden = false;
     }
   } catch (error) {

@@ -193,12 +193,49 @@
         <label>Nama<input name="customerName" autocomplete="name" maxlength="100" required></label>
         <label>Nomor WhatsApp<input name="customerPhone" type="tel" autocomplete="tel" minlength="6" maxlength="30" required></label>
         <label>Email (opsional)<input name="customerEmail" type="email" autocomplete="email" maxlength="254"></label>
-        <label class="checkout-wide">Alamat pengiriman<textarea name="deliveryAddress" autocomplete="street-address" rows="2" maxlength="500" required></textarea></label>
+        <fieldset class="checkout-choice-group checkout-wide">
+          <legend>Metode pengambilan</legend>
+          <label class="checkout-option">
+            <input type="radio" name="fulfillmentMethod" value="delivery" checked>
+            <span><strong>Pengiriman</strong><small>Pesanan diantar ke alamatmu.</small></span>
+          </label>
+          <label class="checkout-option">
+            <input type="radio" name="fulfillmentMethod" value="pickup">
+            <span><strong>Ambil sendiri</strong><small>Ambil pesanan di lokasi toko.</small></span>
+          </label>
+        </fieldset>
+        <div class="pickup-location checkout-wide" id="pickup-location" hidden>
+          <strong>Alamat pengambilan</strong>
+          <address>Jl. Melati, Desa Tembok Banjaran, RT 19/03, Kecamatan Adiwerna, Kabupaten Tegal, 52194</address>
+        </div>
+        <label class="checkout-wide delivery-address-field">Alamat pengiriman<textarea name="deliveryAddress" autocomplete="street-address" rows="2" maxlength="500" required></textarea></label>
+        <fieldset class="checkout-choice-group checkout-wide">
+          <legend>Metode pembayaran</legend>
+          <label class="checkout-option">
+            <input type="radio" name="paymentMethod" value="qris" checked>
+            <span><strong>QRIS</strong><small>Scan kode setelah pesanan berhasil dibuat.</small></span>
+          </label>
+          <label class="checkout-option" id="cash-payment-option">
+            <input type="radio" name="paymentMethod" value="cash" disabled>
+            <span><strong>Tunai saat ambil</strong><small>Tersedia untuk pesanan ambil sendiri.</small></span>
+          </label>
+        </fieldset>
         <label>Catatan (opsional)<textarea name="notes" rows="3" maxlength="1000"></textarea></label>
-        <p class="checkout-message" id="checkout-message" role="status"></p>
         <button class="button button-dark checkout-submit" type="submit">Kirim pesanan <span aria-hidden="true">↗</span></button>
       </form>
-      <a class="button button-dark whatsapp-followup" id="whatsapp-followup" href="#" target="_blank" rel="noopener noreferrer" hidden>Konfirmasi lewat WhatsApp <span aria-hidden="true">↗</span></a>
+      <p class="checkout-message" id="checkout-message" role="status"></p>
+      <div class="pickup-confirmation" id="pickup-confirmation" hidden>
+        <strong>Alamat pengambilan</strong>
+        <address>Jl. Melati, Desa Tembok Banjaran, RT 19/03, Kecamatan Adiwerna, Kabupaten Tegal, 52194</address>
+      </div>
+      <section class="qris-panel" id="qris-panel" aria-labelledby="qris-title" hidden>
+        <h3 id="qris-title">Bayar dengan QRIS</h3>
+        <p>Scan kode QRIS dan masukkan nominal sesuai total pesanan.</p>
+        <img src="images/qris.png" alt="Kode QRIS NOVITA, FLORIST">
+        <p class="qris-total">Total pembayaran <strong id="qris-total"></strong></p>
+        <p>Setelah membayar, konfirmasi pesanan melalui WhatsApp.</p>
+      </section>
+      <a class="button button-dark whatsapp-followup" id="whatsapp-followup" href="#" target="_blank" rel="noopener noreferrer" hidden>Konfirmasi pesanan lewat WhatsApp <span aria-hidden="true">↗</span></a>
     </dialog>
 
     <div class="toast" role="status" aria-live="polite"></div>
