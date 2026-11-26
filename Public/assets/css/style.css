@@ -299,8 +299,8 @@ h2 { margin-bottom: 0; font-size: clamp(34px, 4vw, 51px); line-height: 1.2; lett
   .product-image { height: clamp(260px, 45vw, 390px); }
   .story { gap: 7%; }
   .story-image-wrap { height: 380px; }
-  .footer-main { grid-template-columns: 1.1fr .8fr 1fr; gap: 28px; }
-  .footer-brand { padding-right: 18px; }
+  .footer-main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  .footer-brand { grid-column: 1 / -1; padding: 0 0 24px; border-right: 0; border-bottom: 1px solid #ded8cf; }
   .footer-column:last-child { padding: 19px; }
 }
 
