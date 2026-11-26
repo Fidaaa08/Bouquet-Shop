@@ -114,51 +114,54 @@
             <button class="button button-dark add-product-button" id="add-product-button" type="button">+ Tambah produk</button>
           </div>
 
-          <div class="product-editor" id="product-editor">
-            <div class="editor-heading">
-              <div>
-                <span class="editor-kicker">DETAIL PRODUK</span>
-                <h3 id="product-form-title">Tambah produk baru</h3>
-                <p class="editor-description">Lengkapi informasi berikut agar produk siap ditampilkan di toko.</p>
+          <div class="product-workspace">
+            <div class="product-editor" id="product-editor">
+              <div class="editor-heading">
+                <div>
+                  <span class="editor-kicker">DETAIL PRODUK</span>
+                  <h3 id="product-form-title">Tambah produk baru</h3>
+                  <p class="editor-description">Lengkapi informasi berikut agar produk siap ditampilkan di toko.</p>
+                </div>
+                <button class="admin-secondary-button" id="cancel-edit" type="button" hidden>Batal</button>
               </div>
-              <button class="admin-secondary-button" id="cancel-edit" type="button" hidden>Batal</button>
+              <form class="admin-form product-form" id="product-form">
+                <input name="productId" type="hidden">
+                <label>Nama buket<input name="name" maxlength="100" placeholder="Contoh: Sunday Peony" required></label>
+                <label>Kategori
+                  <select name="category" required>
+                    <option value="romantis">Romantis</option>
+                    <option value="selamat">Perayaan</option>
+                    <option value="sederhana">Untuk diri sendiri</option>
+                  </select>
+                </label>
+                <label>Harga (Rp)<input name="price" type="number" min="1" step="1" placeholder="150000" required></label>
+                <label>Foto produk<input name="image" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+                <p class="file-hint">JPG, PNG, atau WebP · Maksimal 5 MB</p>
+                <label class="form-wide">Deskripsi<textarea name="description" rows="3" maxlength="1000" placeholder="Ceritakan bunga dan suasana buket ini..."></textarea></label>
+                <label class="active-toggle"><input name="active" type="checkbox" checked> Tampilkan di toko</label>
+                <div class="form-actions">
+                  <button class="button button-dark" type="submit">Simpan produk <span aria-hidden="true">↗</span></button>
+                </div>
+              </form>
             </div>
-            <form class="admin-form product-form" id="product-form">
-              <input name="productId" type="hidden">
-              <label>Nama buket<input name="name" maxlength="100" placeholder="Contoh: Sunday Peony" required></label>
-              <label>Kategori
-                <select name="category" required>
-                  <option value="romantis">Romantis</option>
-                  <option value="selamat">Perayaan</option>
-                  <option value="sederhana">Untuk diri sendiri</option>
-                </select>
-              </label>
-              <label>Harga (Rp)<input name="price" type="number" min="1" step="1" placeholder="150000" required></label>
-              <label>Foto produk<input name="image" type="file" accept="image/jpeg,image/png,image/webp" required></label>
-              <p class="file-hint">JPG, PNG, atau WebP · Maksimal 5 MB</p>
-              <label class="form-wide">Deskripsi<textarea name="description" rows="3" maxlength="1000" placeholder="Ceritakan bunga dan suasana buket ini..."></textarea></label>
-              <label class="active-toggle"><input name="active" type="checkbox" checked> Tampilkan di toko</label>
-              <div class="form-actions">
-                <button class="button button-dark" type="submit">Simpan produk <span aria-hidden="true">↗</span></button>
+            <div class="product-inventory">
+              <div class="list-heading">
+                <div>
+                  <h3>Daftar produk</h3>
+                  <p id="product-list-caption">Atur koleksi yang tampil di toko.</p>
+                </div>
+                <div class="list-controls">
+                  <label class="search-control"><span aria-hidden="true">⌕</span><input id="product-search" type="search" placeholder="Cari produk..." aria-label="Cari produk"></label>
+                  <select id="product-filter" aria-label="Filter produk">
+                    <option value="all">Semua status</option>
+                    <option value="active">Aktif</option>
+                    <option value="hidden">Disembunyikan</option>
+                  </select>
+                </div>
               </div>
-            </form>
-          </div>
-
-          <div class="list-heading">
-            <div>
-              <h3>Daftar produk</h3>
-              <p id="product-list-caption">Atur koleksi yang tampil di toko.</p>
-            </div>
-            <div class="list-controls">
-              <label class="search-control"><span aria-hidden="true">⌕</span><input id="product-search" type="search" placeholder="Cari produk..." aria-label="Cari produk"></label>
-              <select id="product-filter" aria-label="Filter produk">
-                <option value="all">Semua status</option>
-                <option value="active">Aktif</option>
-                <option value="hidden">Disembunyikan</option>
-              </select>
+              <div class="admin-product-list" id="admin-product-list"></div>
             </div>
           </div>
-          <div class="admin-product-list" id="admin-product-list"></div>
         </section>
 
         <section class="admin-section orders-section" id="orders" aria-labelledby="orders-title">
