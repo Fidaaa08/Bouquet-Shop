@@ -69,4 +69,4 @@ Jika belum memiliki domain sendiri, situs tetap dapat diakses melalui domain baw
 4. Pesanan yang dikirim dari keranjang tersimpan di Supabase dan dapat dilihat dari panel admin.
 5. Ringkasan dashboard menampilkan jumlah pesanan, pesanan yang menunggu konfirmasi, dan produk aktif. Gunakan pencarian/filter untuk menemukan produk atau pesanan, ubah status pesanan dari daftar, dan tekan tombol muat ulang untuk mengambil data terbaru.
 
-Nomor `WHATSAPP_NUMBER` dipakai untuk tautan tindak lanjut setelah pesanan tersimpan. Pembayaran online belum termasuk.
+Nomor `WHATSAPP_NUMBER` dipakai untuk tombol pesan cepat di kartu produk dan tautan tindak lanjut setelah pesanan tersimpan. Jika nomor belum diisi, pesan cepat tetap membuka WhatsApp dengan teks pesanan yang sudah disiapkan agar pelanggan dapat memilih kontak.

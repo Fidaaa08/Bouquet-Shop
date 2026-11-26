@@ -83,7 +83,10 @@ function createProductCard(product) {
   image.src = product.image_url;
   image.alt = product.name;
   image.loading = "lazy";
-  imageLink.append(image);
+  const categoryTag = document.createElement("span");
+  categoryTag.className = "product-tag";
+  categoryTag.textContent = categoryLabels[product.category] || "Rangkaian bunga";
+  imageLink.append(image, categoryTag);
 
   const arrow = document.createElement("span");
   arrow.className = "product-arrow";
@@ -93,18 +96,41 @@ function createProductCard(product) {
 
   const info = document.createElement("div");
   info.className = "product-info";
-  const description = document.createElement("div");
-  const type = document.createElement("p");
-  type.className = "product-type";
-  type.textContent = categoryLabels[product.category] || "Rangkaian bunga";
+  const summary = document.createElement("div");
+  summary.className = "product-summary";
   const name = document.createElement("h3");
   name.textContent = product.name;
-  description.append(type, name);
+  summary.append(name);
+
+  if (typeof product.description === "string" && product.description.trim()) {
+    const description = document.createElement("p");
+    description.className = "product-description";
+    description.textContent = product.description;
+    summary.append(description);
+  }
 
   const price = document.createElement("p");
   price.className = "product-price";
   price.textContent = rupiah.format(product.price);
-  info.append(description, price);
+  info.append(summary, price);
+
+  const actions = document.createElement("div");
+  actions.className = "product-actions";
+  const whatsappNumber = String(appConfig.whatsappNumber || "").replace(/\D/g, "");
+  const quickOrder = document.createElement("a");
+  quickOrder.className = "quick-order-button";
+  quickOrder.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    `Halo Our Bouquets, saya ingin pesan ${product.name} seharga ${rupiah.format(product.price)}. Apakah masih tersedia?`,
+  )}`;
+  quickOrder.target = "_blank";
+  quickOrder.rel = "noopener noreferrer";
+  quickOrder.setAttribute("aria-label", `Pesan ${product.name} melalui WhatsApp`);
+  const quickOrderLabel = document.createElement("span");
+  quickOrderLabel.textContent = "Pesan via WhatsApp";
+  const quickOrderIcon = document.createElement("span");
+  quickOrderIcon.setAttribute("aria-hidden", "true");
+  quickOrderIcon.textContent = "↗";
+  quickOrder.append(quickOrderLabel, quickOrderIcon);
 
   const addButton = document.createElement("button");
   addButton.className = "add-button";
@@ -116,8 +142,9 @@ function createProductCard(product) {
   addIcon.setAttribute("aria-hidden", "true");
   addIcon.textContent = "+";
   addButton.append(addLabel, addIcon);
+  actions.append(quickOrder, addButton);
 
-  card.append(imageLink, info, addButton);
+  card.append(imageLink, info, actions);
   return card;
 }
 
