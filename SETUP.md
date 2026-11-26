@@ -43,6 +43,8 @@ Situs biasa yang dijalankan dengan `npm start` hanya menyajikan file statis. Unt
 
 `SUPABASE_ANON_KEY` adalah kunci publik untuk browser. Jangan pernah menaruh `service_role` atau secret key di situs maupun di variabel yang diawali `NEXT_PUBLIC_`.
 
+Untuk reset kata sandi admin saat pengembangan lokal, buka **Authentication → URL Configuration → Redirect URLs** di Supabase dan tambahkan `http://127.0.0.1:3001/**`. Untuk produksi, tambahkan pola domain situs yang sebenarnya, misalnya `https://DOMAIN-ANDA/**`. Dari halaman admin, gunakan **Lupa kata sandi?** agar tautan kembali ke panel admin, bukan ke halaman toko.
+
 ## 4. Deploy ke Vercel
 
 1. Di **Project Settings → Environment Variables**, isi variabel yang sama untuk Production (dan Preview jika diperlukan).

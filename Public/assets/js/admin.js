@@ -3,6 +3,8 @@ import { getSupabase } from "./supabase.js";
 const loginSection = document.querySelector("#admin-login");
 const dashboard = document.querySelector("#admin-dashboard");
 const loginForm = document.querySelector("#login-form");
+const forgotPasswordButton = document.querySelector("#forgot-password-button");
+const passwordResetForm = document.querySelector("#password-reset-form");
 const productForm = document.querySelector("#product-form");
 const productList = document.querySelector("#admin-product-list");
 const orderList = document.querySelector("#admin-order-list");
@@ -38,6 +40,13 @@ let products = [];
 let orders = [];
 let supabase;
 
+function setLoginEnabled(enabled) {
+  loginForm.querySelectorAll("input, button").forEach((control) => {
+    control.disabled = !enabled;
+  });
+  forgotPasswordButton.disabled = !enabled;
+}
+
 function showMessage(text, isError = false) {
   const target = dashboard.hidden ? loginMessage : message;
   target.textContent = text;
@@ -49,6 +58,19 @@ function showMessage(text, isError = false) {
 function showLogin() {
   dashboard.hidden = true;
   loginSection.hidden = false;
+  loginForm.hidden = false;
+  forgotPasswordButton.hidden = false;
+  passwordResetForm.hidden = true;
+  setLoginEnabled(Boolean(supabase));
+  showMessage("");
+}
+
+function showPasswordReset() {
+  dashboard.hidden = true;
+  loginSection.hidden = false;
+  loginForm.hidden = true;
+  forgotPasswordButton.hidden = true;
+  passwordResetForm.hidden = false;
   showMessage("");
 }
 
@@ -291,6 +313,52 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
+forgotPasswordButton.addEventListener("click", async () => {
+  const emailInput = loginForm.elements.email;
+  if (!emailInput.reportValidity()) return;
+
+  forgotPasswordButton.disabled = true;
+  showMessage("Mengirim tautan reset...");
+  try {
+    const redirectTo = new URL(`${window.location.pathname}?password-reset=1`, window.location.origin).href;
+    const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value.trim(), {
+      redirectTo,
+    });
+    if (error) throw error;
+    showMessage("Jika email terdaftar, tautan reset akan segera dikirim. Periksa juga folder spam.");
+  } catch (error) {
+    showMessage(`Tautan reset tidak dapat dikirim: ${error.message}`, true);
+  } finally {
+    forgotPasswordButton.disabled = false;
+  }
+});
+
+passwordResetForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submit = passwordResetForm.querySelector('button[type="submit"]');
+  const formData = new FormData(passwordResetForm);
+  const password = formData.get("password");
+  if (password !== formData.get("passwordConfirmation")) {
+    showMessage("Kata sandi dan konfirmasi belum sama.", true);
+    return;
+  }
+
+  submit.disabled = true;
+  showMessage("Menyimpan kata sandi baru...");
+  try {
+    const { data, error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    window.history.replaceState(null, "", window.location.pathname);
+    passwordResetForm.reset();
+    showMessage("Kata sandi berhasil diperbarui. Membuka dashboard...");
+    await showDashboard(data.user);
+  } catch (error) {
+    showMessage(`Kata sandi tidak dapat diperbarui: ${error.message}`, true);
+  } finally {
+    submit.disabled = false;
+  }
+});
+
 logoutButton.addEventListener("click", async () => {
   logoutButton.disabled = true;
   try {
@@ -468,10 +536,39 @@ orderList.addEventListener("change", async (event) => {
 });
 
 async function initialize() {
+  setLoginEnabled(false);
+  showMessage("Menghubungkan ke Supabase...");
   ({ supabase } = await getSupabase());
+  const authError = new URLSearchParams(window.location.hash.slice(1));
+  if (authError.has("error")) {
+    const expired = authError.get("error_code") === "otp_expired";
+    window.history.replaceState(null, "", window.location.pathname);
+    showLogin();
+    showMessage(
+      expired
+        ? "Tautan reset sudah kedaluwarsa atau pernah digunakan. Minta tautan baru lewat Lupa kata sandi?"
+        : "Tautan autentikasi tidak valid. Minta tautan baru dan buka segera setelah diterima.",
+      true,
+    );
+    return;
+  }
+
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
-  if (!data.session) return;
+  if (new URLSearchParams(window.location.search).get("password-reset") === "1") {
+    if (!data.session) {
+      showLogin();
+      showMessage("Sesi reset tidak ditemukan atau sudah kedaluwarsa. Minta tautan baru lewat Lupa kata sandi?", true);
+      return;
+    }
+    showPasswordReset();
+    return;
+  }
+  if (!data.session) {
+    setLoginEnabled(true);
+    showMessage("");
+    return;
+  }
   await showDashboard(data.session.user);
 }
 

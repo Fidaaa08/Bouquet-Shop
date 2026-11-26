@@ -25,9 +25,16 @@
         <p class="admin-intro">Masuk untuk mengelola produk, foto, dan pesanan Our Bouquets.</p>
         <p class="login-message" id="login-message" role="status" aria-live="polite"></p>
         <form class="admin-form login-form" id="login-form">
-          <label>Email admin<input name="email" type="email" autocomplete="username" placeholder="nama@email.com" required></label>
-          <label>Kata sandi<input name="password" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi" required></label>
-          <button class="button button-dark" type="submit">Masuk ke dashboard <span aria-hidden="true">↗</span></button>
+          <label>Email admin<input name="email" type="email" autocomplete="username" placeholder="nama@email.com" required disabled></label>
+          <label>Kata sandi<input name="password" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi" required disabled></label>
+          <button class="button button-dark" type="submit" disabled>Masuk ke dashboard <span aria-hidden="true">↗</span></button>
+        </form>
+        <button class="forgot-password-button" id="forgot-password-button" type="button" disabled>Lupa kata sandi?</button>
+        <form class="admin-form password-reset-form" id="password-reset-form" hidden>
+          <p class="reset-intro">Buat kata sandi baru untuk akun admin Anda.</p>
+          <label>Kata sandi baru<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Ulangi kata sandi<input name="passwordConfirmation" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button class="button button-dark" type="submit">Simpan kata sandi <span aria-hidden="true">↗</span></button>
         </form>
         <a class="login-store-link" href="index.html">← Kembali ke toko</a>
       </div>
