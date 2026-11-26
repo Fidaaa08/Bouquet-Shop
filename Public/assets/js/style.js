@@ -34,12 +34,9 @@ const revealSelectors = [
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if ("IntersectionObserver" in window && !prefersReducedMotion) {
-  const revealObserver = new IntersectionObserver((entries, observer) => {
+  const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      }
+      entry.target.classList.toggle("is-visible", entry.isIntersecting);
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -24px 0px" });
 
