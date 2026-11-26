@@ -238,6 +238,10 @@ h2 { margin-bottom: 0; font-size: clamp(34px, 4vw, 51px); line-height: 1.2; lett
 .footer-column a span { color: var(--wine); font-size: 13px; }
 .footer-bottom { width: min(1240px, 100%); min-height: 64px; margin: 0 auto; border-top: 1px solid #d9d5cd; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 9px; }
 .footer-bottom p { margin: 0; }
+.footer-actions { display: flex; align-items: center; gap: 10px; }
+.admin-login-link { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #ddd6ce; border-radius: 50%; color: #8d6969; transition: border-color .2s, color .2s, background-color .2s; }
+.admin-login-link svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.admin-login-link:hover { border-color: var(--wine); background: var(--wine); color: white; }
 .back-to-top { min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #ddd6ce; border-radius: 999px; transition: border-color .2s, color .2s; }
 .back-to-top:hover { border-color: #bda09a; color: var(--wine); }
 .back-to-top span { color: var(--wine); font-size: 15px; }
