@@ -16,6 +16,9 @@ const whatsappFollowup = document.querySelector("#whatsapp-followup");
 const toast = document.querySelector(".toast");
 
 const categoryLabels = {
+  satin: "Satin",
+  money: "Money",
+  artificial: "Artificial Flowers",
   romantis: "Romantis",
   selamat: "Perayaan",
   sederhana: "Untuk diri sendiri",

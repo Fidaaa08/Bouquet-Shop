@@ -69,4 +69,6 @@ Jika belum memiliki domain sendiri, situs tetap dapat diakses melalui domain baw
 4. Pesanan yang dikirim dari keranjang tersimpan di Supabase dan dapat dilihat dari panel admin.
 5. Ringkasan dashboard menampilkan jumlah pesanan, pesanan yang menunggu konfirmasi, dan produk aktif. Gunakan pencarian/filter untuk menemukan produk atau pesanan, ubah status pesanan dari daftar, dan tekan tombol muat ulang untuk mengambil data terbaru.
 
+Kategori produk saat ini adalah **Satin**, **Money**, dan **Artificial Flowers**. Jika proyek Supabase sudah dibuat sebelum perubahan kategori ini, jalankan `supabase/migrations/20261126131100_update_product_categories.sql` satu kali melalui **SQL Editor**. Produk lama tetap tersimpan; buka Edit pada produk dengan kategori lama, pilih kategori baru, lalu simpan. Produk lama tetap terlihat di Semua buket sampai kategorinya diperbarui.
+
 Nomor `WHATSAPP_NUMBER` dipakai untuk tombol pesan cepat di kartu produk dan tautan tindak lanjut setelah pesanan tersimpan. Jika tidak diisi, aplikasi menggunakan nomor WhatsApp toko `6281386544921`. Nomor lokal yang diawali `0` otomatis diubah ke format internasional.

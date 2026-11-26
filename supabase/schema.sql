@@ -3,7 +3,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(btrim(name)) between 1 and 100),
-  category text not null check (category in ('romantis', 'selamat', 'sederhana')),
+  category text not null check (category in ('satin', 'money', 'artificial')),
   description text not null default '' check (char_length(description) <= 1000),
   price integer not null check (price > 0),
   image_url text not null,

@@ -21,10 +21,14 @@ const orderFilter = document.querySelector("#order-filter");
 const refreshButton = document.querySelector("#refresh-button");
 
 const categories = {
+  satin: "Satin",
+  money: "Money",
+  artificial: "Artificial Flowers",
   romantis: "Romantis",
   selamat: "Perayaan",
   sederhana: "Untuk diri sendiri",
 };
+const currentCategoryValues = new Set(["satin", "money", "artificial"]);
 const statuses = {
   pending: "Menunggu konfirmasi",
   confirmed: "Dikonfirmasi",
@@ -284,6 +288,7 @@ async function loadOrders() {
 }
 
 function resetProductForm() {
+  productForm.elements.category.querySelectorAll("[data-legacy-category]").forEach((option) => option.remove());
   productForm.reset();
   productForm.elements.productId.value = "";
   productForm.elements.active.checked = true;
@@ -413,7 +418,19 @@ productList.addEventListener("click", async (event) => {
   if (button.dataset.action === "edit") {
     productForm.elements.productId.value = product.id;
     productForm.elements.name.value = product.name;
-    productForm.elements.category.value = product.category;
+    const categorySelect = productForm.elements.category;
+    if (currentCategoryValues.has(product.category)) {
+      categorySelect.value = product.category;
+    } else {
+      const legacyOption = document.createElement("option");
+      legacyOption.value = "";
+      legacyOption.textContent = `Kategori lama: ${categories[product.category] || product.category} · pilih kategori baru`;
+      legacyOption.disabled = true;
+      legacyOption.selected = true;
+      legacyOption.dataset.legacyCategory = "true";
+      categorySelect.prepend(legacyOption);
+      categorySelect.value = "";
+    }
     productForm.elements.price.value = product.price;
     productForm.elements.description.value = product.description;
     productForm.elements.active.checked = product.active;
