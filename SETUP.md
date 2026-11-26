@@ -35,10 +35,10 @@ Situs biasa yang dijalankan dengan `npm start` hanya menyajikan file statis. Unt
    ```text
    SUPABASE_URL=https://PROJECT-REF.supabase.co
    SUPABASE_ANON_KEY=KUNCI-PUBLISHABLE-ATAU-ANON
-   WHATSAPP_NUMBER=6281234567890
+   WHATSAPP_NUMBER=6281386544921
    ```
 
-   Nomor WhatsApp bersifat opsional; gunakan format kode negara tanpa tanda `+`, spasi, atau tanda hubung.
+   Nomor WhatsApp bersifat opsional karena aplikasi memiliki nomor toko bawaan. Jika mengubahnya, gunakan format internasional (`628...`) atau nomor lokal yang diawali `0`; format akan dinormalisasi otomatis.
 4. Jalankan `vercel dev`, lalu buka URL lokal yang ditampilkan CLI.
 
 `SUPABASE_ANON_KEY` adalah kunci publik untuk browser. Jangan pernah menaruh `service_role` atau secret key di situs maupun di variabel yang diawali `NEXT_PUBLIC_`.
@@ -69,4 +69,4 @@ Jika belum memiliki domain sendiri, situs tetap dapat diakses melalui domain baw
 4. Pesanan yang dikirim dari keranjang tersimpan di Supabase dan dapat dilihat dari panel admin.
 5. Ringkasan dashboard menampilkan jumlah pesanan, pesanan yang menunggu konfirmasi, dan produk aktif. Gunakan pencarian/filter untuk menemukan produk atau pesanan, ubah status pesanan dari daftar, dan tekan tombol muat ulang untuk mengambil data terbaru.
 
-Nomor `WHATSAPP_NUMBER` dipakai untuk tombol pesan cepat di kartu produk dan tautan tindak lanjut setelah pesanan tersimpan. Jika nomor belum diisi, pesan cepat tetap membuka WhatsApp dengan teks pesanan yang sudah disiapkan agar pelanggan dapat memilih kontak.
+Nomor `WHATSAPP_NUMBER` dipakai untuk tombol pesan cepat di kartu produk dan tautan tindak lanjut setelah pesanan tersimpan. Jika tidak diisi, aplikasi menggunakan nomor WhatsApp toko `6281386544921`. Nomor lokal yang diawali `0` otomatis diubah ke format internasional.

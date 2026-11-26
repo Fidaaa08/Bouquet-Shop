@@ -40,6 +40,11 @@ function showToast(message) {
   toastTimeout = window.setTimeout(() => toast.classList.remove("is-visible"), 2600);
 }
 
+function getWhatsAppNumber() {
+  const digits = String(appConfig.whatsappNumber || "").replace(/\D/g, "");
+  return digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
+}
+
 function readCart() {
   try {
     const saved = JSON.parse(localStorage.getItem("bouquet-cart") || "[]");
@@ -116,7 +121,7 @@ function createProductCard(product) {
 
   const actions = document.createElement("div");
   actions.className = "product-actions";
-  const whatsappNumber = String(appConfig.whatsappNumber || "").replace(/\D/g, "");
+  const whatsappNumber = getWhatsAppNumber();
   const quickOrder = document.createElement("a");
   quickOrder.className = "quick-order-button";
   quickOrder.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
@@ -313,8 +318,9 @@ checkoutForm.addEventListener("submit", async (event) => {
     renderCart();
     checkoutMessage.textContent = `Pesanan berhasil disimpan. Nomor pesanan: ${data}`;
 
-    if (appConfig.whatsappNumber) {
-      whatsappFollowup.href = `https://wa.me/${appConfig.whatsappNumber}?text=${encodeURIComponent(`Halo, saya sudah membuat pesanan ${data} di Our Bouquets.`)}`;
+    const whatsappNumber = getWhatsAppNumber();
+    if (whatsappNumber) {
+      whatsappFollowup.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Halo, saya sudah membuat pesanan ${data} di Our Bouquets.`)}`;
       whatsappFollowup.hidden = false;
     }
   } catch (error) {
