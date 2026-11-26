@@ -21,6 +21,40 @@ if (menuToggle && navigation) {
 const currentYear = document.querySelector("#current-year");
 if (currentYear) currentYear.textContent = String(new Date().getFullYear());
 
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pageLoader = document.querySelector("#page-loader");
+if (pageLoader) {
+  const loaderStartedAt = performance.now();
+  const minLoaderDuration = prefersReducedMotion ? 0 : 1400;
+  const loaderFadeDuration = prefersReducedMotion ? 0 : 500;
+  let loaderHideScheduled = false;
+
+  const hidePageLoader = () => {
+    if (loaderHideScheduled) return;
+    loaderHideScheduled = true;
+    const remaining = Math.max(0, minLoaderDuration - (performance.now() - loaderStartedAt));
+    window.setTimeout(() => {
+      pageLoader.classList.add("is-hidden");
+      window.setTimeout(() => document.body.classList.remove("is-loading"), loaderFadeDuration);
+    }, remaining);
+  };
+
+  document.body.classList.add("is-loading");
+  if (prefersReducedMotion && document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hidePageLoader, { once: true });
+  } else if (document.readyState === "complete" || prefersReducedMotion) {
+    hidePageLoader();
+  } else {
+    window.addEventListener("load", hidePageLoader, { once: true });
+  }
+  window.setTimeout(() => {
+    if (!pageLoader.classList.contains("is-hidden")) {
+      loaderHideScheduled = false;
+      hidePageLoader();
+    }
+  }, 4000);
+}
+
 const revealSelectors = [
   ".promise-item",
   ".collection .section-heading > *",
@@ -31,7 +65,6 @@ const revealSelectors = [
   ".footer-brand",
   ".footer-column",
 ];
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if ("IntersectionObserver" in window && !prefersReducedMotion) {
   const revealObserver = new IntersectionObserver((entries) => {
