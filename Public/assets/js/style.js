@@ -18,22 +18,5 @@ if (menuToggle && navigation) {
   });
 }
 
-const newsletterForm = document.querySelector(".newsletter-form");
-const newsletterMessage = document.querySelector(".newsletter-message");
-
-if (newsletterForm && newsletterMessage) {
-  newsletterForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const emailInput = newsletterForm.querySelector("input");
-
-    if (!emailInput || !emailInput.validity.valid) {
-      emailInput?.reportValidity();
-      return;
-    }
-
-    newsletterMessage.textContent = "Formulir ini belum terhubung ke layanan newsletter.";
-  });
-}
-
 const currentYear = document.querySelector("#current-year");
 if (currentYear) currentYear.textContent = String(new Date().getFullYear());
