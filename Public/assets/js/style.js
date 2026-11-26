@@ -22,12 +22,12 @@ const currentYear = document.querySelector("#current-year");
 if (currentYear) currentYear.textContent = String(new Date().getFullYear());
 
 const revealSelectors = [
-  ".promise-bar",
-  ".collection .section-heading",
+  ".promise-item",
+  ".collection .section-heading > *",
   ".collection .filter-row",
   ".story-image-wrap",
-  ".story-copy",
-  ".custom-content",
+  ".story-copy > *",
+  ".custom-content > *",
   ".footer-brand",
   ".footer-column",
 ];
@@ -42,6 +42,8 @@ if ("IntersectionObserver" in window && !prefersReducedMotion) {
 
   const observeReveal = (element) => {
     if (element.classList.contains("scroll-reveal")) return;
+    const siblingIndex = Array.prototype.indexOf.call(element.parentElement.children, element);
+    element.style.setProperty("--reveal-delay", `${Math.min(siblingIndex, 4) * 80}ms`);
     element.classList.add("scroll-reveal");
     revealObserver.observe(element);
   };
